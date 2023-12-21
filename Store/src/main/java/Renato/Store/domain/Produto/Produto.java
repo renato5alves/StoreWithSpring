@@ -1,4 +1,4 @@
-package Renato.Store.Produto;
+package Renato.Store.domain.Produto;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

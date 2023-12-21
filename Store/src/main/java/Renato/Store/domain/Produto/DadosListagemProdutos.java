@@ -1,4 +1,4 @@
-package Renato.Store.Produto;
+package Renato.Store.domain.Produto;
 
 public record DadosListagemProdutos(Long id, String nome, String categoria, Long preco, Boolean status){
     public DadosListagemProdutos(Produto produto)

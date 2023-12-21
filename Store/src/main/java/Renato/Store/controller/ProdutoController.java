@@ -1,6 +1,7 @@
 package Renato.Store.controller;
 
-import Renato.Store.Produto.*;
+//import Renato.Store.Produto.*;
+import Renato.Store.domain.Produto.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
