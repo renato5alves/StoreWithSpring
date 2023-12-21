@@ -5,8 +5,10 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("produtos")
@@ -17,32 +19,49 @@ public class ProdutoController {
 
     @PostMapping
     @Transactional
-    public void cadastrar(@RequestBody @Valid DadosCadastroProduto dados){
+    public ResponseEntity cadastrar(@RequestBody @Valid DadosCadastroProduto dados, UriComponentsBuilder uriBuilder){
 
-        repository.save(new Produto(dados));
+        var produto = new Produto(dados);
+        repository.save(produto);
+
+        var uri = uriBuilder.path("/produtos/{id}").buildAndExpand(produto.getId()).toUri();
+        var dto = new DadosDetalhamentoProduto(produto);
+        return ResponseEntity.created(uri).body(dto);
     }
     @GetMapping
-    public Page<DadosListagemProdutos> listarProdrutos(Pageable pageable)
+    public ResponseEntity<Page<DadosListagemProdutos>> listarProdrutos(Pageable pageable)
     {
-       return repository.findAllByStatusTrue(pageable).map(DadosListagemProdutos::new);
+       var page = repository.findAllByStatusTrue(pageable).map(DadosListagemProdutos::new);
+       return ResponseEntity.ok(page);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity detalhar(@PathVariable Long id)
+    {
+        var produto = repository.getReferenceById(id);
+        return ResponseEntity.ok(new DadosDetalhamentoProduto(produto));
+    }
+
 
     @PutMapping
     @Transactional
-    public void alterarProduto(@RequestBody @Valid DadosAlterarProduto dados)
+    public ResponseEntity alterarProduto(@RequestBody @Valid DadosAlterarProduto dados)
     {
 //        System.out.println(dados);
         var produto = repository.getReferenceById(dados.id());
         produto.atualizarInformacoes(dados);
+
+        return ResponseEntity.ok(new DadosDetalhamentoProduto(produto));
     }
 
     @DeleteMapping("/{id}")
     @Transactional
-    public void removerProduto(@PathVariable Long id){
+    public ResponseEntity removerProduto(@PathVariable Long id){
         //repository.deleteById(id);  //remove registro do banco de dados
         var produto = repository.getReferenceById(id);
         produto.excluir();
 
+        return ResponseEntity.noContent().build();
     }
 
 }
